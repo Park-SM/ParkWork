@@ -19,7 +19,7 @@ implementation 'com.smparkworld.parkwork:parkwork:1.0.0'
 HashMap<String, String> outputData = new HashMap<>();
 outputData.put("exampleKey", "exampleData");
 
-ParkWork.create(this, "") // Please enter the URI.
+ParkWork.create(this, "")   // Enter the Request-URI.
         .setListener(new ParkWork.OnResponseListener() {
             @Override
             public void onResponse(String response) {
@@ -38,8 +38,9 @@ ParkWork.create(this, "") // Please enter the URI.
     $data = $_REQUEST[exampleKey];
 
     // Enter the code to process after receiving data from the device.
-
-    echo $data." from server.";
+    $response = $data." from server.";
+    
+    echo $response;
 ?&gt;
 </pre>
 <br> 
@@ -47,9 +48,9 @@ ParkWork.create(this, "") // Please enter the URI.
 - Image Uploading
 <pre>
 HashMap<String, String> outputData = new HashMap<>();
-outputData.put("exampleKey", "example image uri");  // Content-path or Absolute-path
+outputData.put("exampleKey", "");  // Enter the image URI of Content-path or Absolute-path.
 
-ParkWork.create(this, "")   // Please enter the URI.
+ParkWork.create(this, "")   // Enter the Request-URI.
         .setListener(new ParkWork.OnResponseListener() {
             @Override
             public void onResponse(String response) {
@@ -66,7 +67,7 @@ ParkWork.create(this, "")   // Please enter the URI.
         
 // PHP ///////////////////////////////////////
 &lt;?php
-    $storage = "";  // Please enter the directory where the image will be saved
+    $storage = "";  // Enter the directory path where the image will be saved
     if($_FILES["exampleKey"]["error"] == 0) {
 
         $fname = $_FILES["exampleKey"]["name"];
@@ -80,10 +81,11 @@ ParkWork.create(this, "")   // Please enter the URI.
     echo("Success");
 ?&gt;
 </pre>
+<br>
 
 - Get only response
 <pre>
-ParkWork.create(this, "")   // Please enter the URI.
+ParkWork.create(this, "")   // Enter the Request-URI.
         .setListener(new ParkWork.OnResponseListener() {
             @Override
             public void onResponse(String response) {
