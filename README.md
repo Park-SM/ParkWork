@@ -16,7 +16,7 @@ implementation 'com.smparkworld.parkwork:parkwork:1.0.0'
 ## Example
 - String request
 <pre>
-HashMap<String, String> outputData = new HashMap<>();
+HashMap&lt;String, String&gt; outputData = new HashMap<>();
 outputData.put("exampleKey", "exampleData");
 
 ParkWork.create(this, "")   // Enter the Request-URI.
@@ -47,7 +47,7 @@ ParkWork.create(this, "")   // Enter the Request-URI.
 
 - Image Uploading
 <pre>
-HashMap<String, String> outputData = new HashMap<>();
+HashMap&lt;String, String&gt; outputData = new HashMap<>();
 outputData.put("exampleKey", "");  // Enter the image URI of Content-path or Absolute-path.
 
 ParkWork.create(this, "")   // Enter the Request-URI.
