@@ -35,11 +35,11 @@ ParkWork.create(this, "") // Please enter the URI.
 
 // PHP ///////////////////////////////////////
 &lt;?php
-        $data = $_REQUEST[exampleKey];
+    $data = $_REQUEST[exampleKey];
 
-        // Enter the code to process after receiving data from the device.
+    // Enter the code to process after receiving data from the device.
 
-        echo $data." from server.";
+    echo $data." from server.";
 ?&gt;
 </pre>
 <br> 
@@ -61,25 +61,40 @@ ParkWork.create(this, "")   // Please enter the URI.
             }
         })
         .setData(outputData)
-        .setType(ParkWork.WORK_IMAGE) // Default value is ParkWork.WORK_STRING.
+        .setType(ParkWork.WORK_IMAGE) // Default value is ParkWork.WORK_STRING
         .start();
         
 // PHP ///////////////////////////////////////
 &lt;?php
-        $storage = "";  // Please enter the directory where the image will be saved
-        if($_FILES["exampleKey"]["error"] == 0) {
+    $storage = "";  // Please enter the directory where the image will be saved
+    if($_FILES["exampleKey"]["error"] == 0) {
 
-          $fname = $_FILES["exampleKey"]["name"];
-          if(!move_uploaded_file($_FILES["exampleKey"]["tmp_name"], $storage.$fname))
+        $fname = $_FILES["exampleKey"]["name"];
+        if(!move_uploaded_file($_FILES["exampleKey"]["tmp_name"], $storage.$fname))
             exit("Error: Failed to upload image");
 
-        } else {
-          exit("Error: Not found image.");
-        }
+    } else {
+        exit("Error: Not found image.");
+    }
 
-        echo("Success");
+    echo("Success");
 ?&gt;
+</pre>
 
+- Get only response
+<pre>
+ParkWork.create(this, "")   // Please enter the URI.
+        .setListener(new ParkWork.OnResponseListener() {
+            @Override
+            public void onResponse(String response) {
+                // Enter the code to process after receiving data from the server.
+            }
+            @Override
+            public void onError(String errorMessage) {
+                // Enter the code to process after receiving error message from the ParkWork library.
+            }
+        })
+        .start();
 </pre>
 
 ## License
