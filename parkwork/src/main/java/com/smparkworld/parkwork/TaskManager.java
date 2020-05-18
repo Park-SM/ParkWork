@@ -72,6 +72,23 @@ public class TaskManager {
                     }
                 }
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+            new ReadOnlyTask(uri, mPrgListener) {
+                @Override
+                protected void onPostExecute(final String result) {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (mRspListener != null) {
+                                if (result != null)
+                                    mRspListener.onResponse(result);
+                                else
+                                    mRspListener.onError(getErrorMessage());
+                            }
+                        }
+                    });
+                }
+            }.start();
         }
 
     }
