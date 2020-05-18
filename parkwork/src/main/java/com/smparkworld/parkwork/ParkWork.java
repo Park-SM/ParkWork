@@ -7,20 +7,14 @@ import java.util.HashMap;
 
 public class ParkWork {
 
-    public static final int WORK_STRING = 100;
-    public static final int WORK_IMAGE = 101;
-
-    public static final int METHOD_POST = 0;
-    public static final int METHOD_GET = 1;
-
-    private static ExecutingTaskManager exeTaskManager;
+    private static TaskManager exeTaskManager;
 
     private Context mContext;
     private String mUri;
-    private int mMethod = METHOD_GET;
-    private int mWorkType = WORK_STRING;
-    private HashMap<String, String> mData;
-    private OnResponseListener mListener;
+    private HashMap<String, String> mImgData;
+    private HashMap<String, String> mStrData;
+    private OnResponseListener mRspListener;
+    private OnProgressUpdateListener mPrgListener;
 
     private ParkWork setArgument(Context context, String uri) {
         mContext = context;
@@ -32,23 +26,23 @@ public class ParkWork {
         return new ParkWork().setArgument(context, uri);
     }
 
-    public ParkWork setMethod(int method) {
-        mMethod = method;
+    public ParkWork setImageData(HashMap<String, String> data) {
+        mImgData = data;
         return this;
     }
 
-    public ParkWork setType(int workType) {
-        mWorkType = workType;
+    public ParkWork setStringData(HashMap<String, String> data) {
+        mStrData = data;
         return this;
     }
 
-    public ParkWork setData(HashMap<String, String> data) {
-        mData = data;
+    public ParkWork setOnResponseListener(OnResponseListener listener) {
+        mRspListener = listener;
         return this;
     }
 
-    public ParkWork setListener(OnResponseListener listener) {
-        mListener = listener;
+    public ParkWork setOnProgressUpdateListener(OnProgressUpdateListener listener) {
+        mPrgListener = listener;
         return this;
     }
 
@@ -59,14 +53,18 @@ public class ParkWork {
         }
 
         if (exeTaskManager == null)
-            exeTaskManager = new ExecutingTaskManager();
+            exeTaskManager = new TaskManager();
 
-        exeTaskManager.execute(mContext, mUri, mWorkType, mMethod, mData, mListener);
+        exeTaskManager.execute(mContext, mUri, mImgData, mStrData, mRspListener, mPrgListener);
     }
 
     public interface OnResponseListener {
         void onResponse(String response);
         void onError(String errorMessage);
+    }
+
+    public interface OnProgressUpdateListener {
+        void onProgressUpdate(int progress);
     }
 
 }

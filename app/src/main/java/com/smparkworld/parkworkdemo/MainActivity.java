@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -22,7 +23,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView tvResponse;
     private ImageView ivSelectedImage;
     private String selectedImageUri;
-    private HashMap<String, String> outputData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,17 +35,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.btnStringSubmit).setOnClickListener(this);
         findViewById(R.id.btnImagePicker).setOnClickListener(this);
         findViewById(R.id.btnImageSubmit).setOnClickListener(this);
+        findViewById(R.id.btnImageStringSubmit).setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         switch(v.getId()) {
+
             case R.id.btnStringSubmit:
-                outputData = new HashMap<>();
-                outputData.put("testKey", etData.getText().toString());
+                HashMap<String, String> strData1 = new HashMap<>();
+                strData1.put("exampleKey", etData.getText().toString());
 
                 ParkWork.create(this, "")   // Please enter the URI.
-                        .setListener(new ParkWork.OnResponseListener() {
+                        .setOnResponseListener(new ParkWork.OnResponseListener() {
                             @Override
                             public void onResponse(String response) {
                                 tvResponse.setText(response);
@@ -55,12 +57,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                             }
                         })
-                        .setData(outputData)
+                        .setStringData(strData1)
                         .start();
                 break;
 
             case R.id.btnImagePicker:
-
                 // This is ImagePicker library. "https://github.com/Park-SM/ParkImagePicker"
                 ParkImagePicker.create(this)
                         .setOnSelectedListener(new ParkImagePicker.OnSingleSelectedListener() {
@@ -74,13 +75,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.btnImageSubmit:
-                if (selectedImageUri == null) break;
+                if (selectedImageUri == null || selectedImageUri.length() == 0) break;
 
-                outputData = new HashMap<>();
-                outputData.put("testKey", selectedImageUri);
+                HashMap<String, String> imgData1 = new HashMap<>();
+                imgData1.put("exampleKey", selectedImageUri);
 
                 ParkWork.create(this, "")   // Please enter the URI.
-                        .setListener(new ParkWork.OnResponseListener() {
+                        .setOnResponseListener(new ParkWork.OnResponseListener() {
                             @Override
                             public void onResponse(String response) {
                                 Toast.makeText(MainActivity.this, "Result: " + response, Toast.LENGTH_SHORT).show();
@@ -90,10 +91,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 Toast.makeText(MainActivity.this, "Fail!: " + errorMessage, Toast.LENGTH_SHORT).show();
                             }
                         })
-                        .setData(outputData)
-                        .setType(ParkWork.WORK_IMAGE)
+                        .setImageData(imgData1)
                         .start();
+                break;
 
+            case R.id.btnImageStringSubmit:
+                if (selectedImageUri == null || selectedImageUri.length() == 0) {
+                    Toast.makeText(this, "Please select an image.", Toast.LENGTH_SHORT).show();
+                    break;
+                }
+                    
+                if (etData.getText().length() == 0) {
+                    Toast.makeText(this, "Enter the string", Toast.LENGTH_SHORT).show();
+                    etData.requestFocus();
+                    break;
+                }
+
+                HashMap<String, String> imgData2 = new HashMap<>();
+                imgData2.put("imgExampleKey", selectedImageUri);
+
+                HashMap<String, String> strData2 = new HashMap<>();
+                strData2.put("strExampleKey", etData.getText().toString());
+
+                ParkWork.create(this, "")   // Please enter the URI.
+                        .setOnResponseListener(new ParkWork.OnResponseListener() {
+                            @Override
+                            public void onResponse(String response) {
+                                Toast.makeText(MainActivity.this, "Result: " + response, Toast.LENGTH_SHORT).show();
+                            }
+                            @Override
+                            public void onError(String errorMessage) {
+                                Toast.makeText(MainActivity.this, "Fail!: " + errorMessage, Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setImageData(imgData2)
+                        .setStringData(strData2)
+                        .start();
                 break;
         }
 
