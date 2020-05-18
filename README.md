@@ -10,17 +10,17 @@ maven {
 </pre>
 2. Add to build.gradle
 <pre>
-implementation 'com.smparkworld.parkwork:parkwork:1.0.0'
+implementation 'com.smparkworld.parkwork:parkwork:1.1.0'
 </pre>
 
 ## Example
 - String request
-<pre>
-HashMap&lt;String, String&gt; outputData = new HashMap<>();
-outputData.put("exampleKey", "exampleData");
+<pre>                      
+HashMap&lt;String, String&gt; strData = new HashMap<>();
+strData.put("exampleKey", "exampleData");
 
 ParkWork.create(this, "")   // Enter the Request-URI.
-        .setListener(new ParkWork.OnResponseListener() {
+        .setOnResponseListener(new ParkWork.OnResponseListener() {
             @Override
             public void onResponse(String response) {
                 // Enter the code to process after receiving data from the server.
@@ -30,12 +30,12 @@ ParkWork.create(this, "")   // Enter the Request-URI.
                 // Enter the code to process after receiving error message from the ParkWork library.
             }
         })
-        .setData(outputData)
+        .setStringData(strData)
         .start();
 
 // PHP ///////////////////////////////////////
 &lt;?php
-    $data = $_REQUEST[exampleKey];
+    $data = $_POST[exampleKey];
 
     // Enter the code to process after receiving data from the device.
     $response = $data." from server.";
@@ -47,11 +47,11 @@ ParkWork.create(this, "")   // Enter the Request-URI.
 
 - Image Uploading
 <pre>
-HashMap&lt;String, String&gt; outputData = new HashMap<>();
-outputData.put("exampleKey", "");  // Enter the image URI of Content-path or Absolute-path.
+HashMap&lt;String, String&gt; imgData = new HashMap<>();
+imgData.put("exampleKey", "");  // Enter the image URI of Content-path or Absolute-path.
 
 ParkWork.create(this, "")   // Enter the Request-URI.
-        .setListener(new ParkWork.OnResponseListener() {
+        .setOnResponseListener(new ParkWork.OnResponseListener() {
             @Override
             public void onResponse(String response) {
                 // Enter the code to process after receiving data from the server.
@@ -61,12 +61,53 @@ ParkWork.create(this, "")   // Enter the Request-URI.
                 // Enter the code to process after receiving error message from the ParkWork library.
             }
         })
-        .setData(outputData)
-        .setType(ParkWork.WORK_IMAGE) // Default value is ParkWork.WORK_STRING
+        .setImageData(imgData)
         .start();
         
 // PHP ///////////////////////////////////////
 &lt;?php
+    $storage = "";  // Enter the directory path where the image will be saved
+    if($_FILES["exampleKey"]["error"] == 0) {
+
+        $fname = $_FILES["exampleKey"]["name"];
+        if(!move_uploaded_file($_FILES["exampleKey"]["tmp_name"], $storage.$fname))
+            exit("Error: Failed to upload image");
+
+    } else {
+        exit("Error: Not found image.");
+    }
+
+    echo("Success");
+?&gt;
+</pre>
+<br>
+
+- String request and Image uploading
+<pre>
+HashMap&lt;String, String&gt; strData = new HashMap<>();
+strData.put("exampleKey", "exampleData");
+
+HashMap&lt;String, String&gt; imgData = new HashMap<>();
+imgData.put("exampleKey", "");  // Enter the image URI of Content-path or Absolute-path.
+
+ParkWork.create(this, "")   // Please enter the URI.
+        .setOnResponseListener(new ParkWork.OnResponseListener() {
+            @Override
+            public void onResponse(String response) {
+                // Enter the code to process after receiving data from the server.
+            }
+            @Override
+            public void onError(String errorMessage) {
+                // Enter the code to process after receiving error message from the ParkWork library.
+            }
+        })
+        .setStringData(strData)
+        .setImageData(imgData)
+        .start();
+// PHP ///////////////////////////////////////
+&lt;?php
+    $textData = $_GET[exampleKey];
+    
     $storage = "";  // Enter the directory path where the image will be saved
     if($_FILES["exampleKey"]["error"] == 0) {
 
@@ -96,6 +137,34 @@ ParkWork.create(this, "")   // Enter the Request-URI.
                 // Enter the code to process after receiving error message from the ParkWork library.
             }
         })
+        .start();
+</pre>
+<br>
+
+- Receive progress info
+<pre>
+HashMap&lt;String, String&gt; imgData = new HashMap<>();
+imgData.put("exampleKey", "");  // Enter the image URI of Content-path or Absolute-path.
+
+ParkWork.create(this, "")   // Enter the Request-URI.
+        .setListener(new ParkWork.OnResponseListener() {
+            @Override
+            public void onResponse(String response) {
+                // Enter the code to process after receiving data from the server.
+            }
+            @Override
+            public void onError(String errorMessage) {
+                // Enter the code to process after receiving error message from the ParkWork library.
+            }
+        })
+        .setOnProgressUpdateListener(new ParkWork.OnProgressUpdateListener() {
+            @Override
+            public void onProgressUpdate(int progress) {
+                // The percentage of progress is returned as a parameter.
+                // For example, if you upload 4 images, 25 is returned.
+            }
+        })
+        .setImageData(imgData)
         .start();
 </pre>
 
