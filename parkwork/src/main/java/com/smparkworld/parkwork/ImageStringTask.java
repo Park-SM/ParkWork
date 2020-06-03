@@ -2,6 +2,7 @@ package com.smparkworld.parkwork;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Handler;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -15,7 +16,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.HashMap;
 
-public abstract class ImageStringTask extends Thread {
+public class ImageStringTask extends Thread {
 
     private final int MAX_BUF = 1024;
     private final int PRG_ONCE;
@@ -24,19 +25,25 @@ public abstract class ImageStringTask extends Thread {
     private String mUri;
     private HashMap<String, String> mImgData;
     private HashMap<String, String> mStrData;
-    private ParkWork.OnProgressUpdateListener mListener;
+    private ParkWork.OnResponseListener mRspListener;
+    private ParkWork.OnProgressUpdateListener mPrgListener;
     private String mErrorMessage;
+    private Handler mHandler;
 
     public ImageStringTask(Context context,
                            String uri,
                            HashMap<String, String> imgData,
                            HashMap<String, String> strData,
-                           ParkWork.OnProgressUpdateListener listener) {
+                           ParkWork.OnResponseListener rspListener,
+                           ParkWork.OnProgressUpdateListener prgListener,
+                           Handler handler) {
         mContext = context;
         mUri = uri;
         mImgData = imgData;
         mStrData = strData;
-        mListener = listener;
+        mRspListener = rspListener;
+        mPrgListener = prgListener;
+        mHandler = handler;
 
         // "1 +" is for string request.
         PRG_ONCE = 100 / (1 + mImgData.keySet().size());
@@ -57,8 +64,8 @@ public abstract class ImageStringTask extends Thread {
                 data.append(URLDecoder.decode(key, "UTF-8") + "=" + URLDecoder.decode(mStrData.get(key), "UTF-8"));
                 if (++i < size) data.append("&");
             }
-            if (mListener != null)
-                mListener.onProgressUpdate(PRG_ONCE);
+            if (mPrgListener != null)
+                mPrgListener.onProgressUpdate(PRG_ONCE);
 
             URL url = new URL(mUri + data.toString());
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -93,8 +100,8 @@ public abstract class ImageStringTask extends Thread {
 
                 dos.writeBytes(lineEnd);
                 dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-                if (mListener != null)
-                    mListener.onProgressUpdate(PRG_ONCE);
+                if (mPrgListener != null)
+                    mPrgListener.onProgressUpdate(PRG_ONCE);
             }
             dos.close();
 
@@ -112,8 +119,6 @@ public abstract class ImageStringTask extends Thread {
         }
     }
 
-    public String getErrorMessage() { return mErrorMessage; }
-
     private InputStream checkUriType(String uri) throws IOException {
         if (uri == null || uri.length() == 0) return null;
 
@@ -127,5 +132,17 @@ public abstract class ImageStringTask extends Thread {
         return iStream;
     }
 
-    protected abstract void onPostExecute(String result);
+    protected void onPostExecute(final String result) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (mRspListener != null) {
+                    if (result != null)
+                        mRspListener.onResponse(result);
+                    else
+                        mRspListener.onError(mErrorMessage);
+                }
+            }
+        });
+    }
 }

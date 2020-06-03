@@ -2,6 +2,7 @@ package com.smparkworld.parkwork;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Handler;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -14,7 +15,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 
-public abstract class ImageTask extends Thread {
+public class ImageTask extends Thread {
 
     private final int MAX_BUF = 1024;
     private final int PRG_ONCE;
@@ -22,17 +23,23 @@ public abstract class ImageTask extends Thread {
     private Context mContext;
     private String mUri;
     private HashMap<String, String> mImgData;
-    private ParkWork.OnProgressUpdateListener mListener;
+    private ParkWork.OnResponseListener mRspListener;
+    private ParkWork.OnProgressUpdateListener mPrgListener;
     private String mErrorMessage;
+    private Handler mHandler;
 
     public ImageTask(Context context,
                      String uri,
                      HashMap<String, String> imgData,
-                     ParkWork.OnProgressUpdateListener listener) {
+                     ParkWork.OnResponseListener rspListener,
+                     ParkWork.OnProgressUpdateListener prgListener,
+                     Handler handler) {
         mContext = context;
         mUri = uri;
         mImgData = imgData;
-        mListener = listener;
+        mRspListener = rspListener;
+        mPrgListener = prgListener;
+        mHandler = handler;
 
         PRG_ONCE = 100 / imgData.keySet().size();
     }
@@ -78,8 +85,8 @@ public abstract class ImageTask extends Thread {
 
                 dos.writeBytes(lineEnd);
                 dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-                if (mListener != null)
-                    mListener.onProgressUpdate(PRG_ONCE);
+                if (mPrgListener != null)
+                    mPrgListener.onProgressUpdate(PRG_ONCE);
             }
             dos.close();
 
@@ -97,8 +104,6 @@ public abstract class ImageTask extends Thread {
         }
     }
 
-    public String getErrorMessage() { return mErrorMessage; }
-
     private InputStream checkUriType(String uri) throws IOException {
         if (uri == null || uri.length() == 0) return null;
 
@@ -112,5 +117,17 @@ public abstract class ImageTask extends Thread {
         return iStream;
     }
 
-    protected abstract void onPostExecute(String result);
+    protected void onPostExecute(final String result) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (mRspListener != null) {
+                    if (result != null)
+                        mRspListener.onResponse(result);
+                    else
+                        mRspListener.onError(mErrorMessage);
+                }
+            }
+        });
+    }
 }

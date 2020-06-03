@@ -10,7 +10,7 @@ maven {
 </pre>
 2. Add to build.gradle
 <pre>
-implementation 'com.smparkworld.parkwork:parkwork:1.1.0'
+implementation 'com.smparkworld.parkwork:parkwork:1.2.0'
 </pre>
 
 ## Example

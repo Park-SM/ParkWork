@@ -10,19 +10,22 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.HashMap;
 
-public abstract class StringTask extends AsyncTask<Void, Void, String> {
+public class StringTask extends AsyncTask<Void, Void, String> {
 
     private String mUri;
     private HashMap<String, String> mData;
-    private ParkWork.OnProgressUpdateListener mListener;
+    private ParkWork.OnResponseListener mRspListener;
+    private ParkWork.OnProgressUpdateListener mPrgListener;
     private String mErrorMessage;
 
     public StringTask(String uri,
                       HashMap<String, String> data,
-                      ParkWork.OnProgressUpdateListener listener) {
+                      ParkWork.OnResponseListener rspListener,
+                      ParkWork.OnProgressUpdateListener prgListener) {
         mUri = uri;
         mData = data;
-        mListener = listener;
+        mRspListener = rspListener;
+        mPrgListener = prgListener;
     }
 
     @Override
@@ -47,8 +50,8 @@ public abstract class StringTask extends AsyncTask<Void, Void, String> {
                 osw.write(data.toString());
                 osw.close();
             }
-            if (mListener != null)
-                mListener.onProgressUpdate(100);
+            if (mPrgListener != null)
+                mPrgListener.onProgressUpdate(100);
 
             BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             StringBuffer sb = new StringBuffer();
@@ -63,8 +66,14 @@ public abstract class StringTask extends AsyncTask<Void, Void, String> {
         }
     }
 
-    protected String getErrorMessage() { return mErrorMessage; }
-
     @Override
-    protected abstract void onPostExecute(String result);
+    protected void onPostExecute(String result) {
+        if (mRspListener != null) {
+            if (result != null)
+                mRspListener.onResponse(result);
+            else
+                mRspListener.onError(mErrorMessage);
+
+        }
+    }
 }

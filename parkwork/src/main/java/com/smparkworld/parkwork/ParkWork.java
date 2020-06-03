@@ -3,11 +3,13 @@ package com.smparkworld.parkwork;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import java.util.HashMap;
 
 public class ParkWork {
 
-    private static TaskManager exeTaskManager;
+    private static TaskManager taskManager;
 
     private Context mContext;
     private String mUri;
@@ -52,14 +54,14 @@ public class ParkWork {
             return;
         }
 
-        if (exeTaskManager == null)
-            exeTaskManager = new TaskManager();
+        if (taskManager == null)
+            taskManager = new TaskManager();
 
-        exeTaskManager.execute(mContext, mUri, mImgData, mStrData, mRspListener, mPrgListener);
+        taskManager.execute(mContext, mUri, mImgData, mStrData, mRspListener, mPrgListener);
     }
 
     public interface OnResponseListener {
-        void onResponse(String response);
+        void onResponse(@NonNull String response);
         void onError(String errorMessage);
     }
 
